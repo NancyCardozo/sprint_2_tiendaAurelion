@@ -1,0 +1,4 @@
+Archivo,Error,Cantidad,Método,Impacto
+productos.csv,Categorías incorrectas,41,Reasignación manual basada en nombre del producto,Alto
+productos.csv,"Encoding incorrecto (caracteres Ã, º, etc.)",0,Reemplazo de caracteres malformados,Bajo
+detalle_ventas.csv,Redundancia de nombre_producto,343,Eliminar columna (se obtiene de productos.csv),Bajo - Optimización

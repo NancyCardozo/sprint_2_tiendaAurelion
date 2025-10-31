@@ -1,0 +1,8 @@
+id_venta,nombre_producto,cantidad,precio_unitario,importe,categoria
+75,Pepsi 1.5L,5,4973,24865,Alimentos
+50,Caramelos Masticables,5,4752,23760,Alimentos
+16,Barrita de Cereal 30g,5,4430,22150,Alimentos
+21,Pizza Congelada Muzzarella,5,4286,21430,Alimentos
+63,Energética Nitro 500ml,5,4218,21090,Alimentos
+110,Jugo de Naranja 1L,5,4170,20850,Alimentos
+94,Jugo en Polvo Limón,5,4090,20450,Alimentos

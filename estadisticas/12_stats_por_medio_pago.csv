@@ -1,0 +1,5 @@
+medio_pago,importe_count,importe_sum,importe_mean,importe_median,importe_std,id_venta_nunique
+efectivo,111,934819,8421.79,7752.0,5110.69,37
+qr,91,714280,7849.23,6888.0,5592.63,30
+tarjeta,69,460099,6668.1,5169.0,4929.93,26
+transferencia,72,542219,7530.82,5782.5,5315.96,27

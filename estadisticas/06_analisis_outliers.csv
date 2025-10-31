@@ -1,0 +1,4 @@
+Variable,Q1,Q3,IQR,Limite_Inferior,Limite_Superior,Limite_Inferior_Extremo,Limite_Superior_Extremo,Outliers_Leves_Count,Outliers_Leves_Pct,Outliers_Extremos_Count,Outliers_Extremos_Pct,Min_Outlier,Max_Outlier,Interpretacion
+cantidad,2.0,4.0,2.0,-1.0,7.0,-4.0,10.0,0,0.0,0,0.0,,,Sin outliers significativos
+precio_unitario,1618.5,3876.0,2257.5,-1767.75,7262.25,-5154.0,10648.5,0,0.0,0,0.0,,,Sin outliers significativos
+importe,3489.0,10231.5,6742.5,-6624.75,20345.25,-16738.5,30459.0,7,2.0408163265306123,0,0.0,20450.0,24865.0,Sin outliers significativos

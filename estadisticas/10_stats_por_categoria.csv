@@ -1,0 +1,3 @@
+categoria,importe_count,importe_sum,importe_mean,importe_median,importe_std,cantidad_sum,cantidad_mean,id_venta_nunique
+Alimentos,318,2446740,7694.15,6679.0,5336.41,942,2.96,117
+Limpieza,25,204677,8187.08,7960.0,4327.0,74,2.96,21

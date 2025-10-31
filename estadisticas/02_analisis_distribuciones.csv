@@ -1,0 +1,4 @@
+Variable,Tipo_Distribucion,Shapiro_Wilk_Statistic,Shapiro_Wilk_p_value,Shapiro_Normal,DAgostino_Statistic,DAgostino_p_value,DAgostino_Normal,Skewness,Kurtosis,Interpretacion_Skewness,Interpretacion_Kurtosis
+cantidad,Platicúrtica (picos bajos),0.8953064136355731,1.3088284549689563e-14,No,253.272458149464,1.005968782556911e-55,No,0.06181867676904549,-1.2391344615358448,Simétrica,Platicúrtica
+precio_unitario,Platicúrtica (picos bajos),0.9565401282662128,1.5215914560880814e-08,No,81.5438609052063,1.9632499175765285e-18,No,0.1661874235069398,-1.0398741538730196,Simétrica,Platicúrtica
+importe,No normal,0.9261774814787072,5.583831636244462e-12,No,35.039039118357266,2.4624608236840885e-08,No,0.874482341758763,0.14297553233753835,Derecha,Mesocúrtica

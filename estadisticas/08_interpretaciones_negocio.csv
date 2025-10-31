@@ -1,0 +1,5 @@
+Tipo_Analisis,Variable,Hallazgo,Interpretacion,Impacto_Negocio,Accion_Recomendada
+Estadística Descriptiva,Importe,"Venta promedio: $7,730 | Mediana: $6,702","El ticket promedio ($7,730) es mayor que la mediana ($6,702), indicando ventas grandes que elevan el promedio.",Alto,Estrategias de upselling para aumentar ticket promedio
+Distribución,Cantidad,Distribución: Platicúrtica (picos bajos) | Skewness: 0.06,"La cantidad por venta tiene sesgo Simétrica, lo que indica que las compras son equilibradas.",Medio,Mantener estrategia actual
+Correlación,Cantidad-Importe,Correlación Moderada Positiva (r=0.600),"Moderada relación entre cantidad e importe, como se espera. Clientes que compran más unidades gastan proporcionalmente más.",Bajo,Esperado. Seguir monitoreando.
+Correlación,Precio-Importe,Correlación Moderada Positiva (r=0.679),El precio unitario tiene moderada influencia en el importe final. Productos de mayor precio generan moderadamente más ingresos.,Alto,"Promover productos de alto valor (Ron, Yerba, Desodorante)"

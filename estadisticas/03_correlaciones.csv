@@ -1,0 +1,6 @@
+Variable_1,Variable_2,Pearson_r,Pearson_p_value,Pearson_Significativo,Spearman_r,Spearman_p_value,Spearman_Significativo,Fuerza,Direccion,Interpretacion
+cantidad,importe,0.5997233875219231,7.032971383471082e-35,Sí,0.6106932998468839,1.9398773786645615e-36,Sí,Moderada,Positiva,Moderada Positiva
+precio_unitario,importe,0.6792979091934263,9.470110801188069e-48,Sí,0.6981715874469925,1.999488996810584e-51,Sí,Moderada,Positiva,Moderada Positiva
+cantidad,precio_unitario,-0.07448337679011148,0.1687200183389998,No,-0.07070591750848595,0.1914345147677618,No,Muy débil/Nula,Negativa,Muy débil/Nula Negativa
+mes,importe,0.07222603620151932,0.18203828122110075,No,0.07111182587193512,0.18889141634557183,No,Muy débil/Nula,Positiva,Muy débil/Nula Positiva
+dia_semana,importe,-0.02689084714705107,0.6196847368910936,No,-0.03158803376953528,0.5598741075023315,No,Muy débil/Nula,Negativa,Muy débil/Nula Negativa

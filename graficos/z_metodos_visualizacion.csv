@@ -1,0 +1,27 @@
+Categoria,Metodo,Libreria,Aplicacion,Ejemplo_Codigo,Grafico_Usado
+Configuración,plt.style.use(),matplotlib,Establecer estilo visual de gráficos,"plt.style.use(""seaborn-v0_8-darkgrid"")",Todos
+Configuración,sns.set_palette(),seaborn,Definir paleta de colores,"sns.set_palette(""husl"")",Todos
+Configuración,plt.rcParams,matplotlib,"Configurar parámetros globales (tamaño, fuentes)","plt.rcParams[""figure.figsize""] = (12, 8)",Todos
+Distribución,sns.histplot(),seaborn,Crear histograma con KDE,"sns.histplot(data=df, x=""importe"", kde=True)","Gráfico 1, 6"
+Distribución,ax.hist(),matplotlib,Histograma básico,"ax.hist(df[""cantidad""], bins=5)",Gráfico 6
+Distribución,sns.kdeplot(),seaborn,Gráfico de densidad (KDE),"sns.kdeplot(data=df, x=""importe"", fill=True)",Gráfico 9
+Distribución,ax.boxplot(),matplotlib,Gráfico de caja (boxplot),"ax.boxplot(df[""cantidad""], vert=True)",Gráfico 6
+Comparación,sns.boxplot(),seaborn,Boxplot por categorías,"sns.boxplot(data=df, x=""categoria"", y=""importe"")",Gráfico 2
+Comparación,ax.bar(),matplotlib,Gráfico de barras vertical,"ax.bar(categorias, valores)","Gráfico 3, 5, 12"
+Comparación,ax.barh(),matplotlib,Gráfico de barras horizontal,"ax.barh(ciudades, ventas)","Gráfico 5, 8, 11"
+Serie Temporal,ax.plot(),matplotlib,Gráfico de línea,"ax.plot(meses, ventas, marker=""o"")",Gráfico 3
+Serie Temporal,ax.fill_between(),matplotlib,Rellenar área bajo curva,"ax.fill_between(x, y, alpha=0.3)",Gráfico 3
+Correlación,sns.heatmap(),seaborn,Mapa de calor de correlaciones,"sns.heatmap(correlacion, annot=True, cmap=""RdYlGn"")",Gráfico 4
+Relación,ax.scatter(),matplotlib,Gráfico de dispersión,"ax.scatter(df[""cantidad""], df[""importe""])","Gráfico 10, 11"
+Relación,np.polyfit() + np.poly1d(),numpy,Calcular línea de tendencia,"z = np.polyfit(x, y, 1); p = np.poly1d(z)",Gráfico 10
+Proporción,ax.pie(),matplotlib,Gráfico circular (pie chart),"ax.pie(valores, labels=categorias, autopct=""%1.1f%%"")",Gráfico 7
+Formato,ax.xaxis.set_major_formatter(),matplotlib,Formatear etiquetas de ejes,ax.xaxis.set_major_formatter(plt.FuncFormatter(formatear_pesos)),Todos con valores monetarios
+Formato,ax.set_title(),matplotlib,Establecer título del gráfico,"ax.set_title(""Título"", fontsize=16, fontweight=""bold"")",Todos
+Formato,ax.legend(),matplotlib,Agregar leyenda,"ax.legend(fontsize=11, loc=""upper right"")",Múltiples
+Formato,ax.grid(),matplotlib,Agregar cuadrícula,"ax.grid(True, alpha=0.3)",Todos
+Anotación,ax.text(),matplotlib,Agregar texto al gráfico,"ax.text(x, y, ""Texto"", fontsize=10)",Todos
+Anotación,ax.axvline() / ax.axhline(),matplotlib,Líneas de referencia verticales/horizontales,"ax.axvline(media, color=""red"", linestyle=""--"")","Gráfico 1, 3, 9, 11"
+Exportación,plt.savefig(),matplotlib,Guardar gráfico como imagen,"plt.savefig(""grafico.png"", dpi=300, bbox_inches=""tight"")",Todos
+Layout,plt.subplots(),matplotlib,Crear múltiples subgráficos,"fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))",Múltiples
+Layout,plt.tight_layout(),matplotlib,Ajustar espaciado automáticamente,plt.tight_layout(),Todos
+Colores,sns.color_palette(),seaborn,Generar paletas de colores,"colors = sns.color_palette(""viridis"", n_colors=5)",Múltiples
