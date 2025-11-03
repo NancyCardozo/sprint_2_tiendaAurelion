@@ -6,7 +6,7 @@ Instalación requerida:
 pip install streamlit plotly pandas numpy
 
 Ejecución:
-streamlit run dashboard_modificado.py
+streamlit run dashboard_deep.py
 """
 
 import streamlit as st
@@ -237,11 +237,25 @@ st.markdown("""
             flex: 100% !important;
         }
     }
+    /* Mobile optimizations */
+    @media (max-width: 480px) {
+        .main-header {
+            font-size: 1.5rem;
+            padding: 0.5rem;
+        }
+        .info-box {
+            padding: 0.5rem;
+            margin: 0.5rem auto;
+        }
+        .info-box p {
+            font-size: 1rem;
+        }
+    }
 </style>
 """, unsafe_allow_html=True)
 
 # ============================================================================
-# FUNCIONES DE EXPORTACIÓN (igual que antes)
+# FUNCIONES DE EXPORTACIÓN
 # ============================================================================
 def generar_resumen_texto(datos):
     """Genera un resumen ejecutivo en texto plano"""
@@ -598,6 +612,7 @@ with tab1:
         
         ventas_categoria = datos_filtrados.groupby('categoria')['importe'].sum().reset_index()
         
+        # GRÁFICO CIRCULAR 3D
         fig_pie = px.pie(
             ventas_categoria,
             values='importe',
@@ -606,7 +621,17 @@ with tab1:
             color_discrete_map={'Alimentos': '#2ecc71', 'Limpieza': '#3498db'}
         )
         
-        fig_pie.update_traces(textposition='inside', textinfo='percent+label')
+        # EFECTO 3D MEJORADO
+        fig_pie.update_traces(
+            textposition='inside', 
+            textinfo='percent+label',
+            pull=[0.02, 0.02],
+            marker=dict(
+                line=dict(color='#ffffff', width=2),
+                colors=['#2ecc71', '#3498db']
+            )
+        )
+        
         fig_pie.update_layout(
             height=400,
             showlegend=True,
@@ -616,7 +641,8 @@ with tab1:
                 y=-0.2,
                 xanchor="center",
                 x=0.5
-            )
+            ),
+            title="Distribución por Categoría - Vista 3D"
         )
         
         st.plotly_chart(fig_pie, use_container_width=True)
@@ -900,13 +926,23 @@ with tab2:
         **Acción:** Campaña de reactivación con ofertas personalizadas
         """)
     with col2:
+        # GRÁFICO CIRCULAR 3D PARA CLIENTES INACTIVOS
         fig_inactivos = go.Figure(data=[
-            go.Pie(labels=['Inactivos', 'Activos'], 
-                   values=[33, 67],
-                   hole=0.4,
-                   marker_colors=['#e74c3c', '#2ecc71'])
+            go.Pie(
+                labels=['Inactivos', 'Activos'], 
+                values=[33, 67],
+                hole=0.4,
+                marker_colors=['#e74c3c', '#2ecc71'],
+                pull=[0.05, 0],
+                textinfo='percent+label',
+                marker=dict(line=dict(color='#ffffff', width=2))
+            )
         ])
-        fig_inactivos.update_layout(height=250, showlegend=True)
+        fig_inactivos.update_layout(
+            height=250, 
+            showlegend=True,
+            title="Distribución de Clientes - Vista 3D"
+        )
         st.plotly_chart(fig_inactivos, use_container_width=True)
 
 # TAB 3: SOLUCIONES (EXPANDIDO)
@@ -1066,16 +1102,19 @@ with tab4:
     with subtab1:
         st.subheader("Análisis por Categoría")
         
+        # TABLA SOLA EN PRIMERA LÍNEA
+        stats_cat = datos_filtrados.groupby('categoria').agg({
+            'importe': ['sum', 'mean', 'count'],
+            'cantidad': 'mean'
+        }).round(0)
+        st.dataframe(stats_cat, use_container_width=True)
+        
+        st.markdown("---")
+        
+        # SEGUNDA LÍNEA: DOS GRÁFICOS HORIZONTALES
         col1, col2 = st.columns(2)
         
         with col1:
-            stats_cat = datos_filtrados.groupby('categoria').agg({
-                'importe': ['sum', 'mean', 'count'],
-                'cantidad': 'mean'
-            }).round(0)
-            st.dataframe(stats_cat, use_container_width=True)
-        
-        with col2:
             ventas_cat = datos_filtrados.groupby('categoria')['importe'].sum().reset_index()
             fig_cat_bar = px.bar(ventas_cat, x='categoria', y='importe',
                                 title='Ventas Totales por Categoría',
@@ -1084,18 +1123,20 @@ with tab4:
             fig_cat_bar.update_layout(showlegend=False)
             st.plotly_chart(fig_cat_bar, use_container_width=True)
         
+        with col2:
+            # Ticket promedio por categoría
+            ticket_cat = datos_filtrados.groupby('categoria')['importe'].mean().reset_index()
+            fig_ticket = px.bar(ticket_cat, x='categoria', y='importe',
+                               title='Ticket Promedio por Categoría',
+                               labels={'importe': 'Ticket Promedio ($)', 'categoria': 'Categoría'},
+                               color='categoria',
+                               color_discrete_map={'Alimentos': '#2ecc71', 'Limpieza': '#3498db'})
+            st.plotly_chart(fig_ticket, use_container_width=True)
+        
         # Análisis de ticket promedio por categoría
         st.markdown("---")
-        ticket_cat = datos_filtrados.groupby('categoria')['importe'].mean().reset_index()
-        fig_ticket = px.bar(ticket_cat, x='categoria', y='importe',
-                           title='Ticket Promedio por Categoría',
-                           labels={'importe': 'Ticket Promedio ($)', 'categoria': 'Categoría'},
-                           color='categoria',
-                           color_discrete_map={'Alimentos': '#2ecc71', 'Limpieza': '#3498db'})
-        st.plotly_chart(fig_ticket, use_container_width=True)
-
+        
         # BoxPlot comparación de importes
-        st.markdown("---")
         st.subheader("Comparación de Distribución de Importes")
         
         col1, col2 = st.columns(2)
@@ -1118,38 +1159,52 @@ with tab4:
             st.dataframe(stats_box, use_container_width=True)
         
         with col2:
-            # Histograma con media y mediana
+            # Histograma con media y mediana MEJORADO
             fig_hist = go.Figure()
-            
-            # Histograma
+
+            # Histograma con bordes suaves
             fig_hist.add_trace(go.Histogram(
                 x=datos_filtrados['importe'],
                 nbinsx=30,
                 name='Distribución',
                 marker_color='#3498db',
-                opacity=0.7
+                opacity=0.7,
+                marker_line=dict(
+                    color='#2c3e50',
+                    width=1.5
+                ),
+                hovertemplate='<b>Rango:</b> %{x}<br><b>Frecuencia:</b> %{y}<extra></extra>'
             ))
-            
+
             # Calcular estadísticas
             media = datos_filtrados['importe'].mean()
             mediana = datos_filtrados['importe'].median()
-            
+
             # Línea de media
-            fig_hist.add_vline(x=media, line_dash="dash", line_color="red", 
-                              annotation_text=f"Media: ${media:,.0f}",
-                              annotation_position="top right")
-            
+            fig_hist.add_vline(
+                x=media, 
+                line_dash="dash", 
+                line_color="red", 
+                annotation_text=f"Media: ${media:,.0f}",
+                annotation_position="top right"
+            )
+
             # Línea de mediana
-            fig_hist.add_vline(x=mediana, line_dash="dot", line_color="green",
-                              annotation_text=f"Mediana: ${mediana:,.0f}",
-                              annotation_position="top left")
-            
+            fig_hist.add_vline(
+                x=mediana, 
+                line_dash="dot", 
+                line_color="green",
+                annotation_text=f"Mediana: ${mediana:,.0f}",
+                annotation_position="top left"
+            )
+
             fig_hist.update_layout(
                 title='Distribución de Importes por Línea de Venta',
                 xaxis_title='Importe ($)',
                 yaxis_title='Frecuencia',
                 showlegend=False,
-                height=400
+                height=400,
+                bargap=0.05  # Espacio entre barras para mejor distinción
             )
             
             st.plotly_chart(fig_hist, use_container_width=True)
@@ -1167,7 +1222,7 @@ with tab4:
             with col_c:
                 interpretacion = "Sesgada derecha" if sesgo > 0.5 else "Sesgada izquierda" if sesgo < -0.5 else "Simétrica"
                 st.metric("Sesgo", f"{sesgo:.2f}", delta=interpretacion)
-    
+
     with subtab2:
         st.subheader("Análisis por Ciudad")
         
@@ -1361,7 +1416,7 @@ with tab4:
             st.plotly_chart(fig_scatter_cliente, use_container_width=True)
         
         with col2:
-            # Distribución por ciudad
+            # Distribución por ciudad - GRÁFICO CIRCULAR 3D
             if 'ciudad' in datos_con_nombres.columns:
                 ventas_ciudad_cliente = datos_con_nombres.groupby('ciudad').agg({
                     'nombre_completo': 'nunique',
@@ -1369,13 +1424,21 @@ with tab4:
                 }).reset_index()
                 ventas_ciudad_cliente.columns = ['Ciudad', 'Num Clientes', 'Total Ventas']
                 
-                fig_ciudad_pie = px.pie(ventas_ciudad_cliente, 
-                                       values='Num Clientes', 
-                                       names='Ciudad',
-                                       title='Distribución de Clientes por Ciudad',
-                                       hole=0.4)
+                fig_ciudad_pie = px.pie(
+                    ventas_ciudad_cliente, 
+                    values='Num Clientes', 
+                    names='Ciudad',
+                    title='Distribución de Clientes por Ciudad - Vista 3D',
+                    hole=0.4
+                )
+                
+                # EFECTO 3D
+                fig_ciudad_pie.update_traces(
+                    pull=[0.02] * len(ventas_ciudad_cliente),
+                    marker=dict(line=dict(color='#ffffff', width=2))
+                )
+                
                 st.plotly_chart(fig_ciudad_pie, use_container_width=True)
-    
 
     with subtab5:
         st.subheader("Análisis Temporal")
@@ -1459,9 +1522,21 @@ with tab4:
                     medio_pago_ventas = datos_filtrados.dropna(subset=['medio_pago']).groupby('medio_pago')['importe'].sum().reset_index()
                     
                     if len(medio_pago_ventas) > 0:
-                        fig_pago = px.pie(medio_pago_ventas, values='importe', names='medio_pago',
-                                         title='Distribución por Medio de Pago',
-                                         hole=0.4)
+                        # GRÁFICO CIRCULAR 3D PARA MEDIOS DE PAGO
+                        fig_pago = px.pie(
+                            medio_pago_ventas, 
+                            values='importe', 
+                            names='medio_pago',
+                            title='Distribución por Medio de Pago - Vista 3D',
+                            hole=0.4
+                        )
+                        
+                        # EFECTO 3D
+                        fig_pago.update_traces(
+                            pull=[0.02] * len(medio_pago_ventas),
+                            marker=dict(line=dict(color='#ffffff', width=2))
+                        )
+                        
                         st.plotly_chart(fig_pago, use_container_width=True)
                     else:
                         st.info("No hay datos de medios de pago disponibles.")

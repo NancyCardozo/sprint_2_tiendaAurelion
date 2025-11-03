@@ -6,7 +6,7 @@ Instalación requerida:
 pip install streamlit plotly pandas numpy
 
 Ejecución:
-streamlit run dashboard_aurelion-E.py
+streamlit run dashboard_aurelion-Ejecutivo.py
 """
 """
 DASHBOARD EJECUTIVO FINAL - TIENDA AURELION

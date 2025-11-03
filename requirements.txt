@@ -1,0 +1,44 @@
+# PROYECTO TIENDA AURELION - Dependencias
+# Análisis de Datos de Ventas con Python
+
+# ============================================================================
+# LIBRERÍAS CORE DE ANÁLISIS DE DATOS
+# ============================================================================
+pandas>=2.0.0
+numpy>=1.24.0
+
+# ============================================================================
+# VISUALIZACIÓN DE DATOS
+# ============================================================================
+matplotlib>=3.7.0
+seaborn>=0.12.0
+plotly>=5.14.0
+
+# ============================================================================
+# ANÁLISIS ESTADÍSTICO
+# ============================================================================
+scipy>=1.10.0
+
+# ============================================================================
+# DASHBOARD INTERACTIVO (STREAMLIT)
+# ============================================================================
+streamlit>=1.28.0
+
+# ============================================================================
+# UTILIDADES ADICIONALES
+# ============================================================================
+openpyxl>=3.1.0  # Para exportar a Excel si es necesario
+
+# ============================================================================
+# NOTAS DE INSTALACIÓN
+# ============================================================================
+# Instalar todas las dependencias:
+#   pip install -r requirements.txt
+#
+# Instalar en entorno virtual (recomendado):
+#   python -m venv venv
+#   source venv/bin/activate  # En Linux/Mac
+#   venv\Scripts\activate     # En Windows
+#   pip install -r requirements.txt
+#
+# Versiones de Python soportadas: 3.8+

@@ -6,7 +6,7 @@ Instalación requerida:
 pip install streamlit plotly pandas numpy
 
 Ejecución:
-streamlit run dashboard_aurelion.py
+streamlit run dashboard_aurelion-original.py
 """
 
 import streamlit as st
