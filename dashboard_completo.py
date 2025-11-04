@@ -6,7 +6,7 @@ Instalación requerida:
 pip install streamlit plotly pandas numpy
 
 Ejecución:
-streamlit run dashboard_deep.py
+streamlit run dashboard_completo.py
 """
 
 import streamlit as st
