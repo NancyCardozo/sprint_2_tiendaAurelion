@@ -1,0 +1,15 @@
+Archivo,Operacion,Metodo_Python,Linea_Codigo_Ejemplo,Resultado
+clientes.csv,Leer archivo,pd.read_csv(),"pd.read_csv(""datos_originales/clientes.csv"")",100 registros cargados
+clientes.csv,Eliminar duplicados,"drop_duplicates(subset=[""email""], keep=""first"")","clientes_limpios.drop_duplicates(subset=[""email""], keep=""first"")",100 registros únicos
+clientes.csv,Convertir fechas,pd.to_datetime(),"clientes_limpios[""fecha_alta""] = pd.to_datetime(clientes_limpios[""fecha_alta""])",Tipo datetime64[ns]
+productos.csv,Corregir encoding,str.replace(),"productos[""nombre_producto""].str.replace(""Ã©"", ""é"")","Caracteres corregidos: é, í, ó, ú, ñ"
+productos.csv,Corregir categorías,loc[] con condiciones,"productos.loc[productos[""id_producto""] == 2, ""categoria""] = ""Alimentos""",41 categorías corregidas
+productos.csv,Eliminar columna temporal,"drop(columns=[""categoria_original""])","productos_limpios.drop(""categoria_original"", axis=1)",Columna eliminada
+productos.csv,Ordenar datos,sort_values().reset_index(drop=True),"productos_limpios.sort_values(""id_producto"").reset_index(drop=True)",Datos ordenados por ID
+ventas.csv,Normalizar (eliminar redundancia),"drop(columns=[""nombre_cliente"", ""email""])","ventas_limpias.drop([""nombre_cliente"", ""email""], axis=1)",2 columnas eliminadas (normalización)
+ventas.csv,Agregar dimensión fecha,"merge(calendario[[""fecha"", ""id_fecha""]])","ventas_limpias.merge(calendario[[""fecha"", ""id_fecha""]], on=""fecha"")",Dimensión fecha agregada
+ventas.csv,Convertir fechas,pd.to_datetime(),"ventas_limpias[""fecha""] = pd.to_datetime(ventas_limpias[""fecha""])",Tipo datetime64[ns]
+detalle_ventas.csv,Eliminar columna redundante,"drop(columns=[""nombre_producto""])","detalle_ventas_limpio.drop(""nombre_producto"", axis=1)",1 columna eliminada
+detalle_ventas.csv,Validar cálculos,cantidad * precio_unitario,"detalle[""importe_calculado""] = detalle[""cantidad""] * detalle[""precio_unitario""]",Importes validados
+NUEVO: calendario.csv,Crear rango de fechas,"pd.date_range(start, end, freq=""D"")","pd.date_range(start=fecha_min, end=fecha_max, freq=""D"")",179 fechas creadas
+NUEVO: calendario.csv,Extraer componentes de fecha,"dt.year, dt.month, dt.day, dt.dayofweek","calendario[""anio""] = calendario[""fecha""].dt.year","Componentes extraídos: año, mes, día, etc."

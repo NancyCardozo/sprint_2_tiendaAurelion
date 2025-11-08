@@ -1,101 +1,101 @@
-id_producto,nombre_producto,categoria,precio_unitario
-1,Coca Cola 1.5L,Alimentos,2347
-2,Pepsi 1.5L,Alimentos,4973
-3,Sprite 1.5L,Alimentos,4964
-4,Fanta Naranja 1.5L,Alimentos,2033
-5,Agua Mineral 500ml,Alimentos,4777
-6,Jugo de Naranja 1L,Alimentos,4170
-7,Jugo de Manzana 1L,Alimentos,3269
-8,Energética Nitro 500ml,Alimentos,4218
-9,Yerba Mate Suave 1kg,Alimentos,3878
-10,Yerba Mate Intensa 1kg,Alimentos,4883
-11,Café Molido 250g,Alimentos,2053
-12,Té Negro 20 saquitos,Alimentos,570
-13,Té Verde 20 saquitos,Alimentos,2383
-14,Leche Entera 1L,Alimentos,1723
-15,Leche Descremada 1L,Alimentos,2538
-16,Yogur Natural 200g,Alimentos,4613
-17,Queso Cremoso 500g,Alimentos,4834
-18,Queso Rallado 150g,Alimentos,3444
-19,Manteca 200g,Alimentos,3251
-20,Pan Lactal Blanco,Alimentos,1571
-21,Pan Lactal Integral,Alimentos,272
-22,Medialunas de Manteca,Alimentos,2069
-23,Bizcochos Salados,Alimentos,2380
-24,Galletitas Chocolate,Alimentos,1305
-25,Galletitas Vainilla,Alimentos,4015
-26,Alfajor Triple,Alimentos,1001
-27,Alfajor Simple,Alimentos,2502
-28,Papas Fritas Clásicas 100g,Alimentos,936
-29,Papas Fritas Onduladas 100g,Alimentos,1868
-30,Maní Salado 200g,Alimentos,4875
-31,Mix de Frutos Secos 200g,Alimentos,3409
-32,Chocolate Amargo 100g,Alimentos,2234
-33,Chocolate con Leche 100g,Alimentos,1255
-34,Turrón 50g,Alimentos,503
-35,Barrita de Cereal 30g,Alimentos,4430
-36,Dulce de Leche 400g,Alimentos,2559
-37,Mermelada de Durazno 400g,Alimentos,3196
-38,Mermelada de Frutilla 400g,Alimentos,1584
-39,Helado Vainilla 1L,Alimentos,469
-40,Helado Chocolate 1L,Alimentos,1215
-41,Aceite de Girasol 1L,Alimentos,860
-42,Vinagre de Alcohol 500ml,Alimentos,1195
-43,Salsa de Tomate 500g,Alimentos,887
-44,Arroz Largo Fino 1kg,Alimentos,2979
-45,Fideos Spaghetti 500g,Alimentos,745
-46,Lentejas Secas 500g,Alimentos,3036
-47,Garbanzos 500g,Alimentos,2939
-48,Porotos Negros 500g,Alimentos,4462
-49,Harina de Trigo 1kg,Alimentos,2512
-50,Azúcar 1kg,Alimentos,727
-51,Sal Fina 500g,Alimentos,1745
-52,Detergente Líquido 750ml,Limpieza,2582
-53,Lavandina 1L,Alimentos,1664
-54,Jabón de Tocador,Limpieza,1592
-55,Shampoo 400ml,Alimentos,1407
-56,Papel Higiénico x4,Limpieza,2532
-57,Servilletas x100,Alimentos,4520
-58,Caramelos Masticables,Alimentos,4752
-59,Chicle Menta,Alimentos,3612
-60,Chupetín,Alimentos,4647
-61,Miel Pura 250g,Alimentos,4982
-62,Stevia 100 sobres,Alimentos,3848
-63,Granola 250g,Alimentos,4337
-64,Avena Instantánea 250g,Alimentos,3953
-65,Cerveza Rubia 1L,Alimentos,2423
-66,Cerveza Negra 1L,Alimentos,1533
-67,Vino Tinto Malbec 750ml,Alimentos,4719
-68,Vino Blanco 750ml,Alimentos,2684
-69,Sidra 750ml,Alimentos,744
-70,Fernet 750ml,Alimentos,4061
-71,Vodka 700ml,Alimentos,508
-72,Ron 700ml,Alimentos,3876
-73,Gin 700ml,Alimentos,1561
-74,Whisky 750ml,Alimentos,2953
-75,Licor de Café 700ml,Alimentos,3204
-76,Pizza Congelada Muzzarella,Alimentos,4286
-77,Empanadas Congeladas,Alimentos,4778
-78,Verduras Congeladas Mix,Alimentos,4289
-79,Hamburguesas Congeladas x4,Alimentos,2420
-80,Helado de Frutilla 1L,Alimentos,1981
-81,Aceitunas Verdes 200g,Alimentos,2520
-82,Aceitunas Negras 200g,Alimentos,2394
-83,Queso Untable 190g,Alimentos,1830
-84,Queso Azul 150g,Alimentos,1645
-85,Jugo en Polvo Naranja,Alimentos,1856
-86,Jugo en Polvo Limón,Alimentos,4090
-87,Sopa Instantánea Pollo,Alimentos,1679
-88,Caldo Concentrado Carne,Alimentos,2570
-89,Caldo Concentrado Verdura,Alimentos,1003
-90,Toallas Húmedas x50,Limpieza,2902
-91,Desodorante Aerosol,Alimentos,4690
-92,Crema Dental 90g,Limpieza,2512
-93,Cepillo de Dientes,Alimentos,2142
-94,Hilo Dental,Limpieza,1418
-95,Mascarilla Capilar,Alimentos,1581
-96,Suavizante 1L,Limpieza,4920
-97,Limpiavidrios 500ml,Alimentos,872
-98,Desengrasante 500ml,Limpieza,2843
-99,Esponjas x3,Alimentos,2430
-100,Trapo de Piso,Limpieza,4854
+id_producto,nombre_producto,categoria,precio_unitario,categoria_original,subcategoria
+1,Coca Cola 1.5L,Alimentos,2347,Alimentos,Bebidas
+2,Pepsi 1.5L,Alimentos,4973,Limpieza,Bebidas
+3,Sprite 1.5L,Alimentos,4964,Alimentos,Bebidas
+4,Fanta Naranja 1.5L,Alimentos,2033,Limpieza,Bebidas
+5,Agua Mineral 500ml,Alimentos,4777,Alimentos,Bebidas
+6,Jugo de Naranja 1L,Alimentos,4170,Limpieza,Bebidas
+7,Jugo de Manzana 1L,Alimentos,3269,Alimentos,Bebidas
+8,Energética Nitro 500ml,Alimentos,4218,Limpieza,Bebidas
+9,Yerba Mate Suave 1kg,Alimentos,3878,Alimentos,Infusiones
+10,Yerba Mate Intensa 1kg,Alimentos,4883,Limpieza,Infusiones
+11,Café Molido 250g,Alimentos,2053,Alimentos,Infusiones
+12,Té Negro 20 saquitos,Alimentos,570,Limpieza,Infusiones
+13,Té Verde 20 saquitos,Alimentos,2383,Alimentos,Infusiones
+14,Leche Entera 1L,Alimentos,1723,Limpieza,Lácteos
+15,Leche Descremada 1L,Alimentos,2538,Alimentos,Lácteos
+16,Yogur Natural 200g,Alimentos,4613,Limpieza,Lácteos
+17,Queso Cremoso 500g,Alimentos,4834,Alimentos,Lácteos
+18,Queso Rallado 150g,Alimentos,3444,Limpieza,Lácteos
+19,Manteca 200g,Alimentos,3251,Alimentos,Lácteos
+20,Pan Lactal Blanco,Alimentos,1571,Limpieza,Panificados
+21,Pan Lactal Integral,Alimentos,272,Alimentos,Panificados
+22,Medialunas de Manteca,Alimentos,2069,Limpieza,Panificados
+23,Bizcochos Salados,Alimentos,2380,Alimentos,Snacks
+24,Galletitas Chocolate,Alimentos,1305,Limpieza,Snacks
+25,Galletitas Vainilla,Alimentos,4015,Alimentos,Snacks
+26,Alfajor Triple,Alimentos,1001,Limpieza,Snacks
+27,Alfajor Simple,Alimentos,2502,Alimentos,Snacks
+28,Papas Fritas Clásicas 100g,Alimentos,936,Limpieza,Snacks
+29,Papas Fritas Onduladas 100g,Alimentos,1868,Alimentos,Snacks
+30,Maní Salado 200g,Alimentos,4875,Limpieza,Snacks
+31,Mix de Frutos Secos 200g,Alimentos,3409,Alimentos,Snacks
+32,Chocolate Amargo 100g,Alimentos,2234,Limpieza,Snacks
+33,Chocolate con Leche 100g,Alimentos,1255,Alimentos,Snacks
+34,Turrón 50g,Alimentos,503,Limpieza,Snacks
+35,Barrita de Cereal 30g,Alimentos,4430,Alimentos,Snacks
+36,Dulce de Leche 400g,Alimentos,2559,Limpieza,Lácteos
+37,Mermelada de Durazno 400g,Alimentos,3196,Alimentos,Almacén
+38,Mermelada de Frutilla 400g,Alimentos,1584,Limpieza,Almacén
+39,Helado Vainilla 1L,Alimentos,469,Alimentos,Congelados
+40,Helado Chocolate 1L,Alimentos,1215,Limpieza,Congelados
+41,Aceite de Girasol 1L,Alimentos,860,Alimentos,Almacén
+42,Vinagre de Alcohol 500ml,Alimentos,1195,Limpieza,Almacén
+43,Salsa de Tomate 500g,Alimentos,887,Alimentos,Almacén
+44,Arroz Largo Fino 1kg,Alimentos,2979,Limpieza,Almacén
+45,Fideos Spaghetti 500g,Alimentos,745,Alimentos,Almacén
+46,Lentejas Secas 500g,Alimentos,3036,Limpieza,Almacén
+47,Garbanzos 500g,Alimentos,2939,Alimentos,Almacén
+48,Porotos Negros 500g,Alimentos,4462,Limpieza,Almacén
+49,Harina de Trigo 1kg,Alimentos,2512,Alimentos,Almacén
+50,Azúcar 1kg,Alimentos,727,Limpieza,Almacén
+51,Sal Fina 500g,Alimentos,1745,Alimentos,Almacén
+52,Detergente Líquido 750ml,Limpieza,2582,Limpieza,Limpieza Ropa
+53,Lavandina 1L,Limpieza,1664,Alimentos,Limpieza Cocina
+54,Jabón de Tocador,Limpieza,1592,Limpieza,Limpieza Hogar
+55,Shampoo 400ml,Limpieza,1407,Alimentos,Higiene Personal
+56,Papel Higiénico x4,Limpieza,2532,Limpieza,Limpieza Hogar
+57,Servilletas x100,Limpieza,4520,Alimentos,Limpieza Hogar
+58,Caramelos Masticables,Alimentos,4752,Limpieza,Dulces
+59,Chicle Menta,Alimentos,3612,Alimentos,Dulces
+60,Chupetín,Alimentos,4647,Limpieza,Dulces
+61,Miel Pura 250g,Alimentos,4982,Alimentos,Almacén
+62,Stevia 100 sobres,Alimentos,3848,Limpieza,Almacén
+63,Granola 250g,Alimentos,4337,Alimentos,Almacén
+64,Avena Instantánea 250g,Alimentos,3953,Limpieza,Almacén
+65,Cerveza Rubia 1L,Alimentos,2423,Alimentos,Bebidas Alcohólicas
+66,Cerveza Negra 1L,Alimentos,1533,Limpieza,Bebidas Alcohólicas
+67,Vino Tinto Malbec 750ml,Alimentos,4719,Alimentos,Bebidas Alcohólicas
+68,Vino Blanco 750ml,Alimentos,2684,Limpieza,Bebidas Alcohólicas
+69,Sidra 750ml,Alimentos,744,Alimentos,Bebidas Alcohólicas
+70,Fernet 750ml,Alimentos,4061,Limpieza,Bebidas Alcohólicas
+71,Vodka 700ml,Alimentos,508,Alimentos,Bebidas Alcohólicas
+72,Ron 700ml,Alimentos,3876,Limpieza,Bebidas Alcohólicas
+73,Gin 700ml,Alimentos,1561,Alimentos,Bebidas Alcohólicas
+74,Whisky 750ml,Alimentos,2953,Limpieza,Bebidas Alcohólicas
+75,Licor de Café 700ml,Alimentos,3204,Alimentos,Bebidas Alcohólicas
+76,Pizza Congelada Muzzarella,Alimentos,4286,Limpieza,Congelados
+77,Empanadas Congeladas,Alimentos,4778,Alimentos,Congelados
+78,Verduras Congeladas Mix,Alimentos,4289,Limpieza,Congelados
+79,Hamburguesas Congeladas x4,Alimentos,2420,Alimentos,Congelados
+80,Helado de Frutilla 1L,Alimentos,1981,Limpieza,Congelados
+81,Aceitunas Verdes 200g,Alimentos,2520,Alimentos,Conservas
+82,Aceitunas Negras 200g,Alimentos,2394,Limpieza,Conservas
+83,Queso Untable 190g,Alimentos,1830,Alimentos,Lácteos
+84,Queso Azul 150g,Alimentos,1645,Limpieza,Lácteos
+85,Jugo en Polvo Naranja,Alimentos,1856,Alimentos,Bebidas
+86,Jugo en Polvo Limón,Alimentos,4090,Limpieza,Bebidas
+87,Sopa Instantánea Pollo,Alimentos,1679,Alimentos,Almacén
+88,Caldo Concentrado Carne,Alimentos,2570,Limpieza,Almacén
+89,Caldo Concentrado Verdura,Alimentos,1003,Alimentos,Almacén
+90,Toallas Húmedas x50,Limpieza,2902,Limpieza,Higiene Personal
+91,Desodorante Aerosol,Limpieza,4690,Alimentos,Higiene Personal
+92,Crema Dental 90g,Limpieza,2512,Limpieza,Higiene Personal
+93,Cepillo de Dientes,Limpieza,2142,Alimentos,Higiene Personal
+94,Hilo Dental,Limpieza,1418,Limpieza,Higiene Personal
+95,Mascarilla Capilar,Limpieza,1581,Alimentos,Higiene Personal
+96,Suavizante 1L,Limpieza,4920,Limpieza,Limpieza Ropa
+97,Limpiavidrios 500ml,Limpieza,872,Alimentos,Limpieza Cocina
+98,Desengrasante 500ml,Limpieza,2843,Limpieza,Limpieza Cocina
+99,Esponjas x3,Limpieza,2430,Alimentos,Limpieza Cocina
+100,Trapo de Piso,Limpieza,4854,Limpieza,Limpieza Hogar

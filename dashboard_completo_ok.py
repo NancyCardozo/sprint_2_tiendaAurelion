@@ -1094,7 +1094,8 @@ with tab3:
         **Inversión:** $180K | **Retorno:** $1.36M | **ROI:** 756%
         """)
 
-# TAB 4: ANÁLISIS DETALLADO (EXPANDIDO)
+
+    # TAB 4: ANÁLISIS DETALLADO (EXPANDIDO)
 with tab4:
     st.header("📈 ANÁLISIS DETALLADO")
     
@@ -1102,127 +1103,265 @@ with tab4:
     
     with subtab1:
         st.subheader("Análisis por Categoría")
-        
-        # TABLA SOLA EN PRIMERA LÍNEA
+    
+    # ============================================================================
+    # SECCIÓN UNIFICADA: TABLA ESTADÍSTICA + ANÁLISIS INICIAL
+    # ============================================================================
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("#### 📊 Estadísticas por Categoría")
+        # TABLA DE ESTADÍSTICAS POR CATEGORÍA
         stats_cat = datos_filtrados.groupby('categoria').agg({
             'importe': ['sum', 'mean', 'count'],
             'cantidad': 'mean'
         }).round(0)
+        
+        # Renombrar columnas para mejor presentación
+        stats_cat.columns = ['Ventas Totales', 'Ticket Promedio', 'N° Transacciones', 'Cantidad Promedio']
         st.dataframe(stats_cat, use_container_width=True)
+    
+    with col2:
+        st.markdown("#### 📈 Distribución por Categoría")
+        # GRÁFICO CIRCULAR 3D
+        ventas_categoria = datos_filtrados.groupby('categoria')['importe'].sum().reset_index()
         
-        st.markdown("---")
+        fig_pie = px.pie(
+            ventas_categoria,
+            values='importe',
+            names='categoria',
+            hole=0.4,
+            color_discrete_map={'Alimentos': '#2ecc71', 'Limpieza': '#3498db'}
+        )
         
-        # SEGUNDA LÍNEA: DOS GRÁFICOS HORIZONTALES
+        fig_pie.update_traces(
+            textposition='inside', 
+            textinfo='percent+label',
+            pull=[0.02, 0.02],
+            marker=dict(
+                line=dict(color='#ffffff', width=2),
+                colors=['#2ecc71', '#3498db']
+            )
+        )
+        
+        fig_pie.update_layout(
+            height=300,
+            showlegend=True,
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=-0.2,
+                xanchor="center",
+                x=0.5
+            )
+        )
+        
+        st.plotly_chart(fig_pie, use_container_width=True)
+    
+    st.markdown("---")
+    
+    # ============================================================================
+    # GRÁFICOS DE BARRAS COMPARATIVOS
+    # ============================================================================
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        # VENTAS TOTALES POR CATEGORÍA
+        ventas_cat = datos_filtrados.groupby('categoria')['importe'].sum().reset_index()
+        fig_cat_bar = px.bar(ventas_cat, x='categoria', y='importe',
+                            title='Ventas Totales por Categoría',
+                            color='categoria',
+                            color_discrete_map={'Alimentos': '#2ecc71', 'Limpieza': '#3498db'})
+        fig_cat_bar.update_layout(showlegend=False)
+        st.plotly_chart(fig_cat_bar, use_container_width=True)
+    
+    with col2:
+        # TICKET PROMEDIO POR CATEGORÍA
+        ticket_cat = datos_filtrados.groupby('categoria')['importe'].mean().reset_index()
+        fig_ticket = px.bar(ticket_cat, x='categoria', y='importe',
+                           title='Ticket Promedio por Categoría',
+                           labels={'importe': 'Ticket Promedio ($)', 'categoria': 'Categoría'},
+                           color='categoria',
+                           color_discrete_map={'Alimentos': '#2ecc71', 'Limpieza': '#3498db'})
+        fig_ticket.update_layout(showlegend=False)
+        st.plotly_chart(fig_ticket, use_container_width=True)
+    
+    st.markdown("---")
+    
+    # ============================================================================
+    # GRÁFICO DE DISTRIBUCIÓN A ANCHO COMPLETO
+    # ============================================================================
+    
+    st.subheader("Distribución de Importes por Línea de Venta")
+    
+    # HISTOGRAMA DE DISTRIBUCIÓN A ANCHO COMPLETO
+    fig_hist = go.Figure()
+
+    # Histograma con bordes suaves
+    fig_hist.add_trace(go.Histogram(
+        x=datos_filtrados['importe'],
+        nbinsx=30,
+        name='Distribución',
+        marker_color='#3498db',
+        opacity=0.7,
+        marker_line=dict(
+            color='#2c3e50',
+            width=1.5
+        ),
+        hovertemplate='<b>Rango:</b> %{x}<br><b>Frecuencia:</b> %{y}<extra></extra>'
+    ))
+
+    # Calcular estadísticas
+    media = datos_filtrados['importe'].mean()
+    mediana = datos_filtrados['importe'].median()
+
+    # Línea de media
+    fig_hist.add_vline(
+        x=media, 
+        line_dash="dash", 
+        line_color="red", 
+        annotation_text=f"Media: ${media:,.0f}",
+        annotation_position="top right"
+    )
+
+    # Línea de mediana
+    fig_hist.add_vline(
+        x=mediana, 
+        line_dash="dot", 
+        line_color="green",
+        annotation_text=f"Mediana: ${mediana:,.0f}",
+        annotation_position="top left"
+    )
+
+    fig_hist.update_layout(
+        title='Distribución de Importes por Línea de Venta',
+        xaxis_title='Importe ($)',
+        yaxis_title='Frecuencia',
+        showlegend=False,
+        height=400,
+        bargap=0.05
+    )
+    
+    st.plotly_chart(fig_hist, use_container_width=True)
+    
+    # MÉTRICAS DE DISTRIBUCIÓN
+    from scipy import stats
+    sesgo = stats.skew(datos_filtrados['importe'])
+    
+    st.markdown("**Métricas de Distribución:**")
+    col_a, col_b, col_c = st.columns(3)
+    with col_a:
+        st.metric("Media", f"${media:,.0f}")
+    with col_b:
+        st.metric("Mediana", f"${mediana:,.0f}")
+    with col_c:
+        interpretacion = "Sesgada derecha" if sesgo > 0.5 else "Sesgada izquierda" if sesgo < -0.5 else "Simétrica"
+        st.metric("Sesgo", f"{sesgo:.2f}", delta=interpretacion)
+    
+    st.markdown("---")
+    
+    # ============================================================================
+    # COMPARACIÓN DE DISTRIBUCIÓN (BOXPLOT)
+    # ============================================================================
+    
+    st.subheader("Comparación de Distribución entre Categorías")
+    
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        # BOXPLOT COMPARATIVO
+        fig_boxplot = px.box(datos_filtrados, 
+                            x='categoria', 
+                            y='importe',
+                            title='BoxPlot: Distribución de Importes por Categoría',
+                            labels={'categoria': 'Categoría', 'importe': 'Importe ($)'},
+                            color='categoria',
+                            color_discrete_map={'Alimentos': '#2ecc71', 'Limpieza': '#3498db'})
+        fig_boxplot.update_layout(showlegend=False, height=400)
+        st.plotly_chart(fig_boxplot, use_container_width=True)
+    
+    with col2:
+        # ESTADÍSTICAS DESCRIPTIVAS RESUMEN
+        st.markdown("**Estadísticas Descriptivas:**")
+        stats_box = datos_filtrados.groupby('categoria')['importe'].describe()[['mean', '50%', 'std', 'min', 'max']].round(2)
+        stats_box.columns = ['Media', 'Mediana', 'Desv. Est.', 'Mínimo', 'Máximo']
+        st.dataframe(stats_box, use_container_width=True)
+    
+    st.markdown("---")
+    
+    # ============================================================================
+    # ANÁLISIS POR SUBCATEGORÍA (MANTIENE SU ESTRUCTURA ORIGINAL)
+    # ============================================================================
+    
+    st.subheader("📊 Análisis por Subcategoría")
+    
+    if 'subcategoria' in ventas_completas.columns:
         col1, col2 = st.columns(2)
         
         with col1:
-            ventas_cat = datos_filtrados.groupby('categoria')['importe'].sum().reset_index()
-            fig_cat_bar = px.bar(ventas_cat, x='categoria', y='importe',
-                                title='Ventas Totales por Categoría',
-                                color='categoria',
-                                color_discrete_map={'Alimentos': '#2ecc71', 'Limpieza': '#3498db'})
-            fig_cat_bar.update_layout(showlegend=False)
-            st.plotly_chart(fig_cat_bar, use_container_width=True)
+            # Gráfico de ventas por subcategoría
+            ventas_subcat = datos_filtrados.groupby('subcategoria')['importe'].sum().reset_index()
+            ventas_subcat = ventas_subcat.sort_values('importe', ascending=False).head(10)
+            
+            fig_subcat = px.bar(ventas_subcat, x='importe', y='subcategoria',
+                               orientation='h',
+                               title='Top 10 Subcategorías por Ventas',
+                               labels={'importe': 'Ventas Totales ($)', 'subcategoria': 'Subcategoría'},
+                               color='importe',
+                               color_continuous_scale='Viridis')
+            fig_subcat.update_layout(height=400, showlegend=False)
+            st.plotly_chart(fig_subcat, use_container_width=True)
         
         with col2:
-            # Ticket promedio por categoría
-            ticket_cat = datos_filtrados.groupby('categoria')['importe'].mean().reset_index()
-            fig_ticket = px.bar(ticket_cat, x='categoria', y='importe',
-                               title='Ticket Promedio por Categoría',
-                               labels={'importe': 'Ticket Promedio ($)', 'categoria': 'Categoría'},
-                               color='categoria',
-                               color_discrete_map={'Alimentos': '#2ecc71', 'Limpieza': '#3498db'})
-            st.plotly_chart(fig_ticket, use_container_width=True)
+            # GRÁFICO DE BARRAS APILADAS POR CATEGORÍA Y SUBCATEGORÍA
+            if len(datos_filtrados) > 0:
+                subcat_analysis = datos_filtrados.groupby(['categoria', 'subcategoria']).agg({
+                    'importe': 'sum'
+                }).reset_index()
+                
+                # Ordenar por categoría y ventas
+                subcat_analysis = subcat_analysis.sort_values(['categoria', 'importe'], ascending=[True, False])
+                
+                fig_stacked = px.bar(subcat_analysis,
+                                   x='subcategoria',
+                                   y='importe',
+                                   color='categoria',
+                                   title='Ventas por Subcategoría y Categoría',
+                                   labels={'importe': 'Ventas Totales ($)', 'subcategoria': 'Subcategoría'},
+                                   color_discrete_map={'Alimentos': '#2ecc71', 'Limpieza': '#3498db'})
+                
+                fig_stacked.update_layout(
+                    height=400,
+                    xaxis_title='Subcategoría',
+                    yaxis_title='Ventas Totales ($)',
+                    legend_title='Categoría',
+                    showlegend=True,
+                    xaxis={'categoryorder': 'total descending'}
+                )
+                
+                st.plotly_chart(fig_stacked, use_container_width=True)
+            else:
+                st.info("No hay datos para mostrar el gráfico de subcategorías")
         
-        # Análisis de ticket promedio por categoría
-        st.markdown("---")
+        # Tabla detallada de subcategorías
+        st.markdown("#### 📋 Estadísticas Detalladas por Subcategoría")
         
-        # BoxPlot comparación de importes
-        st.subheader("Comparación de Distribución de Importes")
+        stats_subcat = datos_filtrados.groupby(['categoria', 'subcategoria']).agg({
+            'importe': ['sum', 'mean', 'count'],
+            'cantidad': 'sum',
+            'id_venta': 'nunique'
+        }).round(0)
         
-        col1, col2 = st.columns(2)
+        stats_subcat.columns = ['Ventas Totales', 'Ticket Promedio', 'Líneas Venta', 'Unidades Vendidas', 'Transacciones']
+        stats_subcat = stats_subcat.sort_values('Ventas Totales', ascending=False)
         
-        with col1:
-            fig_boxplot = px.box(datos_filtrados, 
-                                x='categoria', 
-                                y='importe',
-                                title='BoxPlot: Distribución de Importes por Categoría',
-                                labels={'categoria': 'Categoría', 'importe': 'Importe ($)'},
-                                color='categoria',
-                                color_discrete_map={'Alimentos': '#2ecc71', 'Limpieza': '#3498db'})
-            fig_boxplot.update_layout(showlegend=False)
-            st.plotly_chart(fig_boxplot, use_container_width=True)
-            
-            # Mostrar estadísticas descriptivas
-            st.markdown("**Estadísticas por Categoría:**")
-            stats_box = datos_filtrados.groupby('categoria')['importe'].describe()[['mean', '50%', 'std', 'min', 'max']].round(2)
-            stats_box.columns = ['Media', 'Mediana', 'Desv. Est.', 'Mínimo', 'Máximo']
-            st.dataframe(stats_box, use_container_width=True)
+        st.dataframe(stats_subcat, use_container_width=True)
         
-        with col2:
-            # Histograma con media y mediana MEJORADO
-            fig_hist = go.Figure()
-
-            # Histograma con bordes suaves
-            fig_hist.add_trace(go.Histogram(
-                x=datos_filtrados['importe'],
-                nbinsx=30,
-                name='Distribución',
-                marker_color='#3498db',
-                opacity=0.7,
-                marker_line=dict(
-                    color='#2c3e50',
-                    width=1.5
-                ),
-                hovertemplate='<b>Rango:</b> %{x}<br><b>Frecuencia:</b> %{y}<extra></extra>'
-            ))
-
-            # Calcular estadísticas
-            media = datos_filtrados['importe'].mean()
-            mediana = datos_filtrados['importe'].median()
-
-            # Línea de media
-            fig_hist.add_vline(
-                x=media, 
-                line_dash="dash", 
-                line_color="red", 
-                annotation_text=f"Media: ${media:,.0f}",
-                annotation_position="top right"
-            )
-
-            # Línea de mediana
-            fig_hist.add_vline(
-                x=mediana, 
-                line_dash="dot", 
-                line_color="green",
-                annotation_text=f"Mediana: ${mediana:,.0f}",
-                annotation_position="top left"
-            )
-
-            fig_hist.update_layout(
-                title='Distribución de Importes por Línea de Venta',
-                xaxis_title='Importe ($)',
-                yaxis_title='Frecuencia',
-                showlegend=False,
-                height=400,
-                bargap=0.05  # Espacio entre barras para mejor distinción
-            )
-            
-            st.plotly_chart(fig_hist, use_container_width=True)
-            
-            # Calcular sesgo
-            from scipy import stats
-            sesgo = stats.skew(datos_filtrados['importe'])
-            
-            st.markdown("**Métricas de Distribución:**")
-            col_a, col_b, col_c = st.columns(3)
-            with col_a:
-                st.metric("Media", f"${media:,.0f}")
-            with col_b:
-                st.metric("Mediana", f"${mediana:,.0f}")
-            with col_c:
-                interpretacion = "Sesgada derecha" if sesgo > 0.5 else "Sesgada izquierda" if sesgo < -0.5 else "Simétrica"
-                st.metric("Sesgo", f"{sesgo:.2f}", delta=interpretacion)
+    else:
+        st.warning("La columna 'subcategoria' no está disponible en los datos.")
+        st.info("Ejecuta el clasificador de subcategorías en la fase de limpieza para habilitar esta sección.")
 
     with subtab2:
         st.subheader("Análisis por Ciudad")
@@ -1245,23 +1384,22 @@ with tab4:
             fig_ciudad.update_layout(showlegend=False)
             st.plotly_chart(fig_ciudad, use_container_width=True)
         
-        # REEMPLAZO DEL MAPA DE CALOR POR GRÁFICO DE MEDIOS DE PAGO POR CIUDAD
+        # MEDIOS DE PAGO POR CIUDAD
         st.markdown("---")
         st.subheader("Medios de Pago por Ciudad")
         
-        # Crear gráfico de barras apiladas para medios de pago por ciudad
         if 'medio_pago' in datos_filtrados.columns and 'ciudad' in datos_filtrados.columns:
             medios_ciudad = datos_filtrados.groupby(['ciudad', 'medio_pago']).size().reset_index(name='transacciones')
             
             fig_medios_ciudad = px.bar(
-        medios_ciudad,
-        x='ciudad',
-        y='transacciones',
-        color='medio_pago',
-        title='Número de Transacciones por Ciudad y Medio de Pago',
-        labels={'ciudad': 'Ciudad', 'transacciones': 'Número de Transacciones', 'medio_pago': 'Medio de Pago'},
-        color_discrete_sequence=px.colors.qualitative.Set2,
-        barmode='group' 
+                medios_ciudad,
+                x='ciudad',
+                y='transacciones',
+                color='medio_pago',
+                title='Número de Transacciones por Ciudad y Medio de Pago',
+                labels={'ciudad': 'Ciudad', 'transacciones': 'Número de Transacciones', 'medio_pago': 'Medio de Pago'},
+                color_discrete_sequence=px.colors.qualitative.Set2,
+                barmode='group'
             )
             
             fig_medios_ciudad.update_layout(
@@ -1275,7 +1413,7 @@ with tab4:
             st.plotly_chart(fig_medios_ciudad, use_container_width=True)
         else:
             st.warning("No hay datos disponibles para medios de pago por ciudad")
-    
+
     with subtab3:
         st.subheader("Análisis de Productos")
         
@@ -1571,6 +1709,8 @@ with tab4:
                         st.info("No hay estadísticas de medios de pago disponibles.")
                 else:
                     st.warning("Columna 'medio_pago' no disponible en los datos.")
+
+
 
 # TAB 5: PROYECCIÓN (EXPANDIDO)
 with tab5:

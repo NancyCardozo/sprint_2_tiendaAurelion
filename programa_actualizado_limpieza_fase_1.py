@@ -3,14 +3,253 @@ PROYECTO TIENDA AURELION - FASE 1
 Limpieza, Inspección y Transformación de Datos
 """
 
+"""
+PROYECTO TIENDA AURELION - FASE 1
+Limpieza, Inspección y Transformación de Datos
+"""
+
 import pandas as pd
 import numpy as np
 from datetime import datetime
 import os
 
+# ============================================================================
+# FUNCIÓN PARA CORREGIR CATEGORÍAS PRINCIPALES CON TRANSFORMERS
+# ============================================================================
+def corregir_categorias_ia(productos_df):
+    """
+    Corrige las categorías principales usando modelo de IA (Zero-shot classification)
+    """
+    print("   🤖 Corrigiendo categorías principales con IA...")
+    
+    try:
+        from transformers import pipeline
+        
+        # Cargar el clasificador
+        clasificador = pipeline("zero-shot-classification", 
+                              model="facebook/bart-large-mnli")
+        
+        # Definir categorías posibles
+        categorias = ["Alimentos", "Limpieza"]
+        
+        def clasificar_con_ia(nombre):
+            if pd.isna(nombre):
+                return "Alimentos"
+            
+            try:
+                resultado = clasificador(str(nombre), candidate_labels=categorias)
+                return resultado["labels"][0]
+            except:
+                return "Alimentos"  # Fallback
+        
+        # Aplicar clasificación (muestra reducida para prueba, luego completo)
+        print("   ⏳ Clasificando productos con IA (esto puede tomar unos minutos)...")
+        
+        # Para prueba rápida, clasificar solo los primeros 10
+        # productos_df['categoria_ia'] = productos_df['nombre_producto'].apply(clasificar_con_ia)
+        
+        # Clasificar en lotes para mejor manejo
+        lote_size = 20
+        total_productos = len(productos_df)
+        categorias_ia = []
+        
+        for i in range(0, total_productos, lote_size):
+            lote = productos_df['nombre_producto'].iloc[i:i+lote_size]
+            lote_categorias = [clasificar_con_ia(nombre) for nombre in lote]
+            categorias_ia.extend(lote_categorias)
+            print(f"   📦 Procesado lote {i//lote_size + 1}/{(total_productos-1)//lote_size + 1}")
+        
+        productos_df['categoria_ia'] = categorias_ia
+        
+        # Contar cambios
+        cambios = (productos_df['categoria'] != productos_df['categoria_ia']).sum()
+        print(f"   ✓ Categorías corregidas por IA: {cambios} productos")
+        
+        # Reemplazar categoría original
+        productos_df['categoria_original'] = productos_df['categoria']  # Guardar original
+        productos_df['categoria'] = productos_df['categoria_ia']
+        productos_df = productos_df.drop('categoria_ia', axis=1)
+        
+        return productos_df
+        
+    except ImportError:
+        print("   ⚠️  Transformers no disponible, usando método basado en reglas...")
+        return corregir_categorias_reglas(productos_df)
+    except Exception as e:
+        print(f"   ⚠️  Error con IA: {e}, usando método basado en reglas...")
+        return corregir_categorias_reglas(productos_df)
 
 # ============================================================================
-# CONFIGURACIÓN DE RUTAS
+# FUNCIÓN ALTERNATIVA BASADA EN REGLAS
+# ============================================================================
+def corregir_categorias_reglas(productos_df):
+    """
+    Corrige categorías principales usando reglas basadas en palabras clave
+    """
+    print("   🔧 Corrigiendo categorías principales con reglas...")
+    
+    # Palabras clave para categoría LIMPIEZA
+    palabras_limpieza = [
+        'detergente', 'lavandina', 'jabón', 'shampoo', 'acondicionador', 'desodorante',
+        'crema dental', 'papel higiénico', 'servilletas', 'toallas húmedas', 'suavizante',
+        'limpiador', 'desinfectante', 'limpiavidrios', 'desengrasante', 'esponjas', 'trapo',
+        'mascarilla', 'cepillo', 'hilo dental'
+    ]
+    
+    def determinar_categoria(nombre):
+        if pd.isna(nombre):
+            return 'Alimentos'
+        
+        nombre_lower = str(nombre).lower()
+        
+        # Verificar si es de limpieza
+        for palabra in palabras_limpieza:
+            if palabra in nombre_lower:
+                return 'Limpieza'
+        
+        return 'Alimentos'  # Por defecto
+    
+    # Guardar categoría original
+    productos_df['categoria_original'] = productos_df['categoria']
+    
+    # Aplicar corrección
+    productos_df['categoria'] = productos_df['nombre_producto'].apply(determinar_categoria)
+    
+    # Contar cambios
+    cambios = (productos_df['categoria_original'] != productos_df['categoria']).sum()
+    print(f"   ✓ Categorías corregidas: {cambios} productos")
+    
+    return productos_df
+
+# ============================================================================
+# FUNCIÓN CLASIFICADOR DE SUBCATEGORÍAS MEJORADO - VERSIÓN CORREGIDA
+# ============================================================================
+def clasificar_subcategorias_mejorado(productos_df):
+    """
+    Clasificación mejorada de subcategorías con reglas más específicas
+    """
+    print("   🧠 Clasificando subcategorías (versión mejorada)...")
+    
+    # Diccionario expandido de palabras clave para subcategorías
+    palabras_clave = {
+        'Bebidas': ['gaseosa', 'jugo', 'agua', 'bebida', 'cola', 'refresco', 'energética', 
+                   'pepsi', 'fanta', 'sprite', 'nitro', 'mineral'],
+        'Lácteos': ['leche', 'yogur', 'queso', 'crema', 'manteca', 'lácteo', 'untable'],
+        'Snacks': ['papas', 'maní', 'snack', 'galletita', 'alfajor', 'chocolate', 'turrón', 
+                  'bizcochos', 'mix frutos', 'barrita cereal', 'frutos secos'],
+        'Limpieza Hogar': ['lavandina', 'limpiador', 'desinfectante', 'esponja', 'toalla', 
+                          'jabón', 'suavizante', 'limpiavidrios', 'desengrasante', 'trapo'],
+        'Higiene Personal': ['shampoo', 'acondicionador', 'desodorante', 'crema dental', 
+                            'hilo dental', 'toallas húmedas', 'cepillo', 'mascarilla'],
+        'Bebidas Alcohólicas': ['cerveza', 'vino', 'whisky', 'ron', 'fernet', 'licor', 'sidra', 'vodka', 'gin'],
+        'Panificados': ['pan', 'medialuna', 'factura', 'tostada', 'galleta', 'empanada'],
+        'Infusiones': ['café', 'té', 'yerba', 'mate', 'infusión', 'saquitos'],
+        'Dulces': ['caramelo', 'chupetín', 'chicle'],
+        'Almacén': ['arroz', 'fideo', 'lenteja', 'poroto', 'harina', 'aceite', 'vinagre', 
+                   'sal', 'caldo', 'salsa tomate', 'granola', 'avena', 'azúcar', 'mermelada',
+                   'miel', 'stevia', 'sopa instantánea', 'garbanzo', 'conserva'],
+        'Congelados': ['helado', 'pizza', 'verdura congelada', 'congelado', 'hamburguesa', 'empanada'],
+        'Conservas': ['aceituna', 'conserva', 'enlatado'],
+        'Cuidado Personal': ['shampoo', 'acondicionador', 'desodorante', 'crema dental', 
+                            'hilo dental', 'toallas húmedas', 'cepillo', 'mascarilla'],
+        'Limpieza Ropa': ['detergente', 'suavizante'],
+        'Limpieza Cocina': ['lavandina', 'limpiador', 'desinfectante', 'esponja', 'limpiavidrios', 'desengrasante']
+    }
+    
+    # Reglas específicas para productos conflictivos - VERSIÓN CORREGIDA
+    reglas_especificas = {
+        'Galletitas Chocolate': 'Snacks',
+        'Galletitas Vainilla': 'Snacks', 
+        'Chocolate Amargo 100g': 'Snacks',  # NOMBRE EXACTO CORREGIDO
+        'Chocolate con Leche 100g': 'Snacks',  # NOMBRE EXACTO CORREGIDO
+        'Dulce de Leche 400g': 'Lácteos',
+        'Mermelada de Durazno 400g': 'Almacén',
+        'Mermelada de Frutilla 400g': 'Almacén',
+        'Salsa de Tomate 500g': 'Almacén',  # NOMBRE EXACTO CORREGIDO
+        'Granola 250g': 'Almacén',
+        'Avena Instantánea 250g': 'Almacén',
+        'Sopa Instantánea Pollo': 'Almacén',
+        'Caldo Concentrado Carne': 'Almacén',
+        'Caldo Concentrado Verdura': 'Almacén',
+        'Jugo en Polvo Naranja': 'Bebidas',
+        'Jugo en Polvo Limón': 'Bebidas',
+        'Medialunas de Manteca': 'Panificados',
+        'Mix de Frutos Secos 200g': 'Snacks',
+        'Barrita de Cereal 30g': 'Snacks',
+        'Helado Chocolate 1L': 'Congelados',
+        'Garbanzos 500g': 'Almacén',
+        'Azúcar 1kg': 'Almacén',
+        'Miel Pura 250g': 'Almacén',
+        'Stevia 100 sobres': 'Almacén',
+        'Empanadas Congeladas': 'Congelados',
+        'Verduras Congeladas Mix': 'Congelados',
+        'Helado de Frutilla 1L': 'Congelados'
+    }
+    
+    def clasificar_por_palabras(nombre, categoria):
+        if pd.isna(nombre):
+            return 'Sin Clasificar'
+        
+        nombre_str = str(nombre).strip()  # Agregar strip() para eliminar espacios
+        
+        print(f"   🔍 Procesando: {nombre_str}")  # DEBUG
+        
+        # Primero verificar reglas específicas
+        if nombre_str in reglas_especificas:
+            print(f"   ✅ Regla específica aplicada: {nombre_str} -> {reglas_especificas[nombre_str]}")
+            return reglas_especificas[nombre_str]
+        
+        nombre_lower = nombre_str.lower()
+        
+        # Si es categoría Limpieza, usar subcategorías específicas
+        if categoria == 'Limpieza':
+            if any(palabra in nombre_lower for palabra in ['shampoo', 'acondicionador', 'desodorante', 'crema dental', 'hilo dental', 'cepillo', 'mascarilla']):
+                return 'Higiene Personal'
+            elif any(palabra in nombre_lower for palabra in ['detergente', 'suavizante']):
+                return 'Limpieza Ropa'
+            elif any(palabra in nombre_lower for palabra in ['lavandina', 'limpiador', 'desinfectante', 'esponja', 'limpiavidrios', 'desengrasante']):
+                return 'Limpieza Cocina'
+            elif 'toallas húmedas' in nombre_lower:
+                return 'Higiene Personal'
+            else:
+                return 'Limpieza Hogar'
+        
+        # Para Alimentos, usar el diccionario general
+        for subcat, palabras in palabras_clave.items():
+            if subcat not in ['Limpieza Hogar', 'Limpieza Ropa', 'Limpieza Cocina']:
+                for palabra in palabras:
+                    if palabra in nombre_lower:
+                        print(f"   ✅ Palabra clave aplicada: {nombre_str} -> {subcat} (palabra: {palabra})")
+                        return subcat
+        
+        print(f"   ⚠️  Sin clasificación: {nombre_str} -> Otros")
+        return 'Otros'
+    
+    # Aplicar clasificación
+    productos_df['subcategoria'] = productos_df.apply(
+        lambda row: clasificar_por_palabras(row['nombre_producto'], row['categoria']), 
+        axis=1
+    )
+    
+    # Estadísticas
+    total_productos = len(productos_df)
+    subcategorias_unicas = productos_df['subcategoria'].nunique()
+    productos_en_otros = (productos_df['subcategoria'] == 'Otros').sum()
+    
+    print(f"   ✓ Subcategorías asignadas: {subcategorias_unicas} tipos")
+    print(f"   ✓ Productos en 'Otros': {productos_en_otros} ({productos_en_otros/total_productos*100:.1f}%)")
+    
+    # Mostrar distribución
+    distribucion = productos_df['subcategoria'].value_counts()
+    print("   📊 Distribución de subcategorías:")
+    for subcat, count in distribucion.head(15).items():
+        porcentaje = (count / total_productos) * 100
+        print(f"      • {subcat}: {count} productos ({porcentaje:.1f}%)")
+    
+    return productos_df
+
+# ============================================================================
+# CONFIGURACIÓN DE RUTAS (MANTENER IGUAL)
 # ============================================================================
 CARPETA_ORIGINALES = 'datos_originales'
 CARPETA_LIMPIOS = 'datos_limpios'
@@ -19,7 +258,7 @@ CARPETA_LIMPIOS = 'datos_limpios'
 os.makedirs(CARPETA_LIMPIOS, exist_ok=True)
 
 # ============================================================================
-# 1. LECTURA DE ARCHIVOS ORIGINALES
+# 1. LECTURA DE ARCHIVOS ORIGINALES (MANTENER IGUAL)
 # ============================================================================
 print("="*70)
 print("FASE 1: LIMPIEZA Y TRANSFORMACIÓN DE DATOS")
@@ -37,13 +276,13 @@ print(f"   ✓ ventas.csv: {ventas.shape[0]} registros")
 print(f"   ✓ detalle_ventas.csv: {detalle_ventas.shape[0]} registros")
 
 # ============================================================================
-# 2. INSPECCIÓN Y DETECCIÓN DE ERRORES
+# 2. INSPECCIÓN Y DETECCIÓN DE ERRORES (MODIFICAR SECCIÓN PRODUCTOS)
 # ============================================================================
 print("\n2. Inspeccionando datos y detectando errores...")
 
 errores_detectados = []
 
-# --- CLIENTES ---
+# --- CLIENTES 
 print("\n   Analizando CLIENTES...")
 clientes_info = {
     'archivo': 'clientes.csv',
@@ -63,89 +302,46 @@ if clientes_info['duplicados_email'] > 0:
         'Impacto': 'Medio'
     })
 
-# --- PRODUCTOS ---
+# --- PRODUCTOS 
 print("   Analizando PRODUCTOS...")
 
-# Corrección de encoding
-productos_texto_original = productos['nombre_producto'].head(10).to_list()
+# Mostrar distribución original de categorías
+print("   📋 Distribución original de categorías:")
+print(f"      • Alimentos: {(productos['categoria'] == 'Alimentos').sum()} productos")
+print(f"      • Limpieza: {(productos['categoria'] == 'Limpieza').sum()} productos")
 
-# Detectar categorías incorrectas (análisis manual basado en nombre del producto)
-categorias_incorrectas = 0
-productos['categoria_original'] = productos['categoria'].copy()
+# --- PRODUCTOS LIMPIOS 
+print("   Limpiando y clasificando productos...")
+productos_limpios = productos.copy()
 
-# Diccionario de correcciones de categorías
-correcciones_categoria = {
-    # Bebidas -> Alimentos
-    2: 'Alimentos',   # Pepsi
-    4: 'Alimentos',   # Fanta
-    6: 'Alimentos',   # Jugo Naranja
-    8: 'Alimentos',   # Energética
-    10: 'Alimentos',  # Yerba Intensa
-    12: 'Alimentos',  # Té Negro
-    14: 'Alimentos',  # Leche Entera
-    16: 'Alimentos',  # Yogur
-    18: 'Alimentos',  # Queso Rallado
-    20: 'Alimentos',  # Pan Lactal Blanco
-    22: 'Alimentos',  # Medialunas
-    24: 'Alimentos',  # Galletitas Chocolate
-    26: 'Alimentos',  # Alfajor
-    28: 'Alimentos',  # Papas Fritas
-    30: 'Alimentos',  # Maní
-    32: 'Alimentos',  # Chocolate Amargo
-    34: 'Alimentos',  # Turrón
-    36: 'Alimentos',  # Dulce de Leche
-    38: 'Alimentos',  # Mermelada Frutilla
-    40: 'Alimentos',  # Helado Chocolate
-    42: 'Alimentos',  # Vinagre
-    44: 'Alimentos',  # Arroz
-    46: 'Alimentos',  # Lentejas
-    48: 'Alimentos',  # Porotos
-    50: 'Alimentos',  # Azúcar
-    58: 'Alimentos',  # Caramelos
-    60: 'Alimentos',  # Chupetín
-    62: 'Alimentos',  # Stevia
-    64: 'Alimentos',  # Avena
-    66: 'Alimentos',  # Cerveza Negra
-    68: 'Alimentos',  # Vino Blanco
-    70: 'Alimentos',  # Fernet
-    72: 'Alimentos',  # Ron
-    74: 'Alimentos',  # Whisky
-    76: 'Alimentos',  # Pizza
-    78: 'Alimentos',  # Verduras Congeladas
-    80: 'Alimentos',  # Helado Frutilla
-    82: 'Alimentos',  # Aceitunas Negras
-    84: 'Alimentos',  # Queso Azul
-    86: 'Alimentos',  # Jugo en Polvo Limón
-    88: 'Alimentos',  # Caldo Carne
-    90: 'Limpieza',   # Toallas Húmedas (CORRECTO)
-    92: 'Limpieza',   # Crema Dental (CORRECTO)
-    94: 'Limpieza',   # Hilo Dental (CORRECTO)
+# Corregir encoding 
+reemplazos = {
+    'Ã©': 'é', 'Ã­': 'í', 'Ã³': 'ó', 'Ãº': 'ú', 
+    'Ã±': 'ñ', 'Ã¡': 'á', 'Ã': 'í'
 }
 
-for id_prod, nueva_cat in correcciones_categoria.items():
-    if id_prod in productos['id_producto'].values:
-        idx = productos[productos['id_producto'] == id_prod].index[0]
-        if productos.loc[idx, 'categoria'] != nueva_cat:
-            categorias_incorrectas += 1
-            productos.loc[idx, 'categoria'] = nueva_cat
+for mal, bien in reemplazos.items():
+    productos_limpios['nombre_producto'] = productos_limpios['nombre_producto'].str.replace(mal, bien, regex=False)
 
-errores_detectados.append({
-    'Archivo': 'productos.csv',
-    'Error': 'Categorías incorrectas',
-    'Cantidad': categorias_incorrectas,
-    'Método': 'Reasignación manual basada en nombre del producto',
-    'Impacto': 'Alto'
-})
+# PASO NUEVO 1: CORREGIR CATEGORÍAS PRINCIPALES
+productos_limpios = corregir_categorias_ia(productos_limpios)  # O usar corregir_categorias_reglas(productos_limpios)
 
-errores_detectados.append({
-    'Archivo': 'productos.csv',
-    'Error': 'Encoding incorrecto (caracteres Ã, º, etc.)',
-    'Cantidad': productos['nombre_producto'].str.contains('Ã|º', regex=True, na=False).sum(),
-    'Método': 'Reemplazo de caracteres malformados',
-    'Impacto': 'Bajo'
-})
+# PASO NUEVO 2: CLASIFICAR SUBCATEGORÍAS MEJORADO
+productos_limpios = clasificar_subcategorias_mejorado(productos_limpios)
 
-# --- VENTAS ---
+# ELIMINAR COLUMNAS TEMPORALES (MODIFICAR)
+columnas_a_eliminar = ['categoria_ia']  # Cambiar por la columna temporal que se cree
+columnas_existentes = [col for col in columnas_a_eliminar if col in productos_limpios.columns]
+
+if columnas_existentes:
+    productos_limpios = productos_limpios.drop(columnas_existentes, axis=1)
+    print(f"   ✓ Columnas eliminadas: {columnas_existentes}")
+
+# Ordenar y resetear índice
+productos_limpios = productos_limpios.sort_values('id_producto').reset_index(drop=True)
+print("   ✓ Productos limpios procesados")
+
+# --- VENTAS 
 print("   Analizando VENTAS...")
 ventas['fecha'] = pd.to_datetime(ventas['fecha'])
 ventas_info = {
@@ -155,7 +351,7 @@ ventas_info = {
     'ventas_sin_cliente': ventas['id_cliente'].isnull().sum()
 }
 
-# --- DETALLE VENTAS ---
+# --- DETALLE VENTAS 
 print("   Analizando DETALLE_VENTAS...")
 detalle_info = {
     'registros': len(detalle_ventas),
@@ -173,46 +369,27 @@ errores_detectados.append({
 })
 
 # ============================================================================
-# 3. LIMPIEZA Y CORRECCIÓN
+# 3. LIMPIEZA Y CORRECCIÓN (MODIFICAR SECCIÓN PRODUCTOS)
 # ============================================================================
 print("\n3. Aplicando correcciones...")
 
-# --- CLIENTES LIMPIOS ---
+# --- CLIENTES LIMPIOS 
 clientes_limpios = clientes.copy()
 clientes_limpios = clientes_limpios.drop_duplicates(subset=['email'], keep='first')
 clientes_limpios['fecha_alta'] = pd.to_datetime(clientes_limpios['fecha_alta'])
 clientes_limpios = clientes_limpios.sort_values('id_cliente').reset_index(drop=True)
 
-# --- PRODUCTOS LIMPIOS ---
-productos_limpios = productos.copy()
-
-# Corregir encoding
-reemplazos = {
-    'Ã©': 'é',
-    'Ã­': 'í',
-    'Ã³': 'ó',
-    'Ãº': 'ú',
-    'Ã±': 'ñ',
-    'Ã¡': 'á',
-    'Ã': 'í'
-}
-
-for mal, bien in reemplazos.items():
-    productos_limpios['nombre_producto'] = productos_limpios['nombre_producto'].str.replace(mal, bien, regex=False)
-
-# Las categorías ya fueron corregidas arriba
-productos_limpios = productos_limpios.drop('categoria_original', axis=1)
+# --- PRODUCTOS LIMPIOS (SIMPLIFICAR - YA ESTÁ PROCESADO) ---
+# Solo asegurar ordenamiento final
 productos_limpios = productos_limpios.sort_values('id_producto').reset_index(drop=True)
 
-# --- VENTAS LIMPIAS ---
+# --- VENTAS LIMPIAS 
 ventas_limpias = ventas.copy()
 ventas_limpias['fecha'] = pd.to_datetime(ventas_limpias['fecha'])
 ventas_limpias = ventas_limpias.sort_values(['fecha', 'id_venta']).reset_index(drop=True)
 
-# --- DETALLE VENTAS LIMPIO ---
+# --- DETALLE VENTAS LIMPIO 
 detalle_ventas_limpio = detalle_ventas.copy()
-
-# Eliminar redundancia: quitar nombre_producto (se obtiene de productos)
 detalle_ventas_limpio = detalle_ventas_limpio.drop('nombre_producto', axis=1)
 
 # Verificar coherencia de importes
@@ -226,6 +403,7 @@ detalle_ventas_limpio = detalle_ventas_limpio.drop('importe_calculado', axis=1)
 detalle_ventas_limpio = detalle_ventas_limpio.sort_values(['id_venta', 'id_producto']).reset_index(drop=True)
 
 print("   ✓ Correcciones aplicadas exitosamente")
+
 
 # ============================================================================
 # 4. DIMENSIÓN CALENDARIO (Modelo Copo de Nieve)
@@ -281,6 +459,20 @@ print("      - Tabla HECHOS: detalle_ventas")
 print("      - Dimensiones: ventas, clientes, productos, calendario")
 
 # ============================================================================
+# VERIFICACIÓN DE SUBCATEGORÍAS
+# ============================================================================
+print("\n7.5. Verificando subcategorías...")
+print(f"   ✓ Productos limpios - Columnas: {list(productos_limpios.columns)}")
+print(f"   ✓ ¿Tiene subcategoria?: {'subcategoria' in productos_limpios.columns}")
+
+if 'subcategoria' in productos_limpios.columns:
+    print(f"   ✓ Subcategorías únicas: {productos_limpios['subcategoria'].nunique()}")
+    print(f"   ✓ Muestra de subcategorías:")
+    muestra = productos_limpios[['nombre_producto', 'categoria', 'subcategoria']].head(5)
+    for _, row in muestra.iterrows():
+        print(f"      • {row['nombre_producto']} → {row['categoria']} → {row['subcategoria']}")
+
+# ============================================================================
 # 6. GUARDAR ARCHIVOS LIMPIOS
 # ============================================================================
 print("\n6. Guardando archivos limpios...")
@@ -309,14 +501,18 @@ df_errores = pd.DataFrame(errores_detectados)
 # Ejemplo CLIENTES: Email duplicado
 clientes_duplicados = clientes[clientes.duplicated(subset=['email'], keep=False)]
 if len(clientes_duplicados) > 0:
-    ejemplo_cliente = f"Email '{clientes_duplicados.iloc[0]['email']}' aparecía {len(clientes_duplicados[clientes_duplicados['email'] == clientes_duplicados.iloc[0]['email']])} veces"
+    email_ejemplo = clientes_duplicados.iloc[0]['email']
+    cantidad = len(clientes_duplicados[clientes_duplicados['email'] == email_ejemplo])
+    ejemplo_cliente = f"Email '{email_ejemplo}' aparecía {cantidad} veces"
 else:
     ejemplo_cliente = "No se encontraron duplicados"
 
-# Ejemplo PRODUCTOS: Categoría incorrecta
-ejemplo_prod_original = productos[productos['id_producto'] == 2][['id_producto', 'nombre_producto', 'categoria_original']].iloc[0]
-ejemplo_prod_limpio = productos_limpios[productos_limpios['id_producto'] == 2][['id_producto', 'nombre_producto', 'categoria']].iloc[0]
-ejemplo_producto = f"ID {ejemplo_prod_original['id_producto']}: '{ejemplo_prod_original['nombre_producto']}' cambió de '{ejemplo_prod_original['categoria_original']}' → '{ejemplo_prod_limpio['categoria']}'"
+# Ejemplo PRODUCTOS: Subcategoría asignada
+if len(productos_limpios) > 0:
+    producto_ejemplo = productos_limpios.iloc[0]
+    ejemplo_producto = f"ID {producto_ejemplo['id_producto']}: '{producto_ejemplo['nombre_producto']}' → '{producto_ejemplo['subcategoria']}'"
+else:
+    ejemplo_producto = "No hay productos disponibles"
 
 # Ejemplo VENTAS: Redundancia eliminada
 ejemplo_venta_antes = f"Columnas originales: {list(ventas.columns)}"
@@ -359,28 +555,28 @@ comparativa_ampliada = {
     
     'Columnas_Limpio': [
         clientes_limpios.shape[1],
-        productos_limpios.shape[1] - 1,  # -1 por categoria_original eliminada
-        ventas_limpias.shape[1],  # fecha, id_fecha, id_cliente, medio_pago, id_venta
+        productos_limpios.shape[1],
+        ventas_limpias.shape[1],
         detalle_ventas_limpio.shape[1]
     ],
     
     'Problema_Principal': [
         'Emails duplicados',
-        'Categorías incorrectas + Encoding',
+        'Encoding incorrecto + Clasificación categorías',
         'Redundancia de datos',
         'Columna redundante (nombre_producto)'
     ],
     
     'Metodo_Python_Principal': [
         'drop_duplicates(subset=["email"], keep="first")',
-        'str.replace() + asignación condicional con loc[]',
+        'str.replace() + clasificación por palabras clave',
         'drop(["nombre_cliente", "email"], axis=1)',
         'drop("nombre_producto", axis=1)'
     ],
     
     'Metodos_Adicionales': [
         'to_datetime(), sort_values(), reset_index()',
-        'copy(), merge() para diccionario de correcciones',
+        'copy(), apply() para clasificación subcategorías',
         'merge() con calendario, to_datetime()',
         'Validación: cantidad * precio_unitario == importe'
     ],
@@ -393,15 +589,15 @@ comparativa_ampliada = {
     ],
     
     'Dato_Antes': [
-        f"Email duplicado: karina.acosta@mail.com (2 veces)" if clientes['email'].duplicated().sum() > 0 else "Sin duplicados",
-        "ID 2: Pepsi 1.5L → Limpieza ❌",
+        f"{clientes_duplicados.shape[0]} emails duplicados" if len(clientes_duplicados) > 0 else "Sin duplicados",
+        f"{productos.shape[0]} productos sin clasificar",
         f"{ventas.shape[1]} columnas con redundancia",
         f"{detalle_ventas.shape[1]} columnas (incluyendo nombre_producto)"
     ],
     
     'Dato_Despues': [
         f"{clientes_limpios.shape[0]} clientes únicos por email",
-        "ID 2: Pepsi 1.5L → Alimentos ✓",
+        f"{productos_limpios['subcategoria'].nunique()} subcategorías asignadas",
         f"{ventas_limpias.shape[1]} columnas normalizadas + dimensión calendario",
         f"{detalle_ventas_limpio.shape[1]} columnas (sin redundancia)"
     ],
@@ -417,6 +613,15 @@ comparativa_ampliada = {
 df_comparativa_ampliada = pd.DataFrame(comparativa_ampliada)
 
 # --- TABLA ADICIONAL: MÉTODOS PYTHON DETALLADOS ---
+
+# Calcular estadísticas de subcategorías para usar en los resultados
+if 'subcategoria' in productos_limpios.columns:
+    total_subcategorias = productos_limpios['subcategoria'].nunique()
+    productos_clasificados = (productos_limpios['subcategoria'] != 'Sin Clasificar').sum()
+else:
+    total_subcategorias = 0
+    productos_clasificados = 0
+
 metodos_detallados = {
     'Archivo': [
         'clientes.csv',
@@ -440,7 +645,7 @@ metodos_detallados = {
         'Eliminar duplicados',
         'Convertir fechas',
         'Corregir encoding',
-        'Corregir categorías',
+        'Clasificar subcategorías',
         'Eliminar columna temporal',
         'Ordenar datos',
         'Normalizar (eliminar redundancia)',
@@ -457,7 +662,7 @@ metodos_detallados = {
         'drop_duplicates(subset=["email"], keep="first")',
         'pd.to_datetime()',
         'str.replace()',
-        'loc[] con condiciones',
+        'apply() con función personalizada',
         'drop(columns=["categoria_original"])',
         'sort_values().reset_index(drop=True)',
         'drop(columns=["nombre_cliente", "email"])',
@@ -474,7 +679,7 @@ metodos_detallados = {
         'clientes_limpios.drop_duplicates(subset=["email"], keep="first")',
         'clientes_limpios["fecha_alta"] = pd.to_datetime(clientes_limpios["fecha_alta"])',
         'productos["nombre_producto"].str.replace("Ã©", "é")',
-        'productos.loc[productos["id_producto"] == 2, "categoria"] = "Alimentos"',
+        'productos_df["nombre_producto"].apply(clasificar_por_palabras)',
         'productos_limpios.drop("categoria_original", axis=1)',
         'productos_limpios.sort_values("id_producto").reset_index(drop=True)',
         'ventas_limpias.drop(["nombre_cliente", "email"], axis=1)',
@@ -487,12 +692,12 @@ metodos_detallados = {
     ],
     
     'Resultado': [
-        '100 registros cargados',
+        f'{clientes.shape[0]} registros cargados',
         f'{clientes_limpios.shape[0]} registros únicos',
         'Tipo datetime64[ns]',
         'Caracteres corregidos: é, í, ó, ú, ñ',
-        f'{categorias_incorrectas} categorías corregidas',
-        'Columna eliminada',
+        f'{total_subcategorias} subcategorías creadas, {productos_clasificados} productos clasificados',
+        'Columna eliminada (si existía)',
         'Datos ordenados por ID',
         '2 columnas eliminadas (normalización)',
         'Dimensión fecha agregada',
@@ -505,52 +710,6 @@ metodos_detallados = {
 }
 
 df_metodos_detallados = pd.DataFrame(metodos_detallados)
-
-# --- TABLA DE ENCODING CORREGIDO ---
-encoding_corregido = {
-    'Caracter_Incorrecto': ['Ã©', 'Ã­', 'Ã³', 'Ãº', 'Ã±', 'Ã¡', 'Ã'],
-    'Caracter_Correcto': ['é', 'í', 'ó', 'ú', 'ñ', 'á', 'í'],
-    'Ejemplo_Antes': [
-        'CafÃ© Molido',
-        'ManÃ­ Salado',
-        'JabÃ³n de Tocador',
-        'AzÃºcar',
-        'Ã±oquis',
-        'Ã¡cido',
-        'TÃ© Verde'
-    ],
-    'Ejemplo_Despues': [
-        'Café Molido',
-        'Maní Salado',
-        'Jabón de Tocador',
-        'Azúcar',
-        'ñoquis',
-        'ácido',
-        'Té Verde'
-    ],
-    'Cantidad_Afectados': [
-        productos['nombre_producto'].str.contains('Ã©', na=False).sum(),
-        productos['nombre_producto'].str.contains('Ã­', na=False).sum(),
-        productos['nombre_producto'].str.contains('Ã³', na=False).sum(),
-        productos['nombre_producto'].str.contains('Ãº', na=False).sum(),
-        productos['nombre_producto'].str.contains('Ã±', na=False).sum(),
-        productos['nombre_producto'].str.contains('Ã¡', na=False).sum(),
-        productos['nombre_producto'].str.contains('Ã[^©íºó±¡]', na=False, regex=True).sum()
-    ]
-}
-
-df_encoding = pd.DataFrame(encoding_corregido)
-
-# --- GUARDAR TODOS LOS REPORTES ---
-df_errores.to_csv(f'{CARPETA_LIMPIOS}/detalle_de_limpieza_errores.csv', index=False)
-df_comparativa_ampliada.to_csv(f'{CARPETA_LIMPIOS}/detalle_de_limpieza_comparativa.csv', index=False)
-df_metodos_detallados.to_csv(f'{CARPETA_LIMPIOS}/detalle_de_limpieza_metodos.csv', index=False)
-df_encoding.to_csv(f'{CARPETA_LIMPIOS}/detalle_de_limpieza_encoding.csv', index=False)
-
-print("   ✓ detalle_de_limpieza_errores.csv")
-print("   ✓ detalle_de_limpieza_comparativa.csv (AMPLIADO)")
-print("   ✓ detalle_de_limpieza_metodos.csv (NUEVO)")
-print("   ✓ detalle_de_limpieza_encoding.csv (NUEVO)")
 
 # ============================================================================
 # 8. RESUMEN FINAL
@@ -571,6 +730,44 @@ for metodo, cantidad in metodos_resumen.items():
     print(f"   • {metodo}: {cantidad} veces")
 
 print("\n\nENCODING CORREGIDO:")
+
+# Crear la tabla de encoding si no existe
+if 'df_encoding' not in locals():
+    # Calcular estadísticas de encoding
+    encoding_corregido = {
+        'Caracter_Incorrecto': ['Ã©', 'Ã­', 'Ã³', 'Ãº', 'Ã±', 'Ã¡', 'Ã'],
+        'Caracter_Correcto': ['é', 'í', 'ó', 'ú', 'ñ', 'á', 'í'],
+        'Ejemplo_Antes': [
+            'CafÃ© Molido',
+            'ManÃ­ Salado',
+            'JabÃ³n de Tocador',
+            'AzÃºcar',
+            'Ã±oquis',
+            'Ã¡cido',
+            'TÃ© Verde'
+        ],
+        'Ejemplo_Despues': [
+            'Café Molido',
+            'Maní Salado',
+            'Jabón de Tocador',
+            'Azúcar',
+            'ñoquis',
+            'ácido',
+            'Té Verde'
+        ],
+        'Cantidad_Afectados': [
+            productos['nombre_producto'].str.contains('Ã©', na=False).sum(),
+            productos['nombre_producto'].str.contains('Ã­', na=False).sum(),
+            productos['nombre_producto'].str.contains('Ã³', na=False).sum(),
+            productos['nombre_producto'].str.contains('Ãº', na=False).sum(),
+            productos['nombre_producto'].str.contains('Ã±', na=False).sum(),
+            productos['nombre_producto'].str.contains('Ã¡', na=False).sum(),
+            productos['nombre_producto'].str.contains('Ã[^©íºó±¡]', na=False, regex=True).sum()
+        ]
+    }
+    
+    df_encoding = pd.DataFrame(encoding_corregido)
+
 total_encoding = df_encoding['Cantidad_Afectados'].sum()
 print(f"   • Total de productos con encoding incorrecto: {total_encoding}")
 print(f"   • Caracteres corregidos: {len(df_encoding)} tipos diferentes")
